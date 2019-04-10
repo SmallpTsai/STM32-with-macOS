@@ -1,8 +1,0 @@
-build/
-.mxproject
-mx.scratch
-tags
-.tags
-.gdb_history
-.gdbinit
-.tags_sorted_by_file
