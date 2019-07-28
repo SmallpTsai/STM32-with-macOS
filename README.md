@@ -260,8 +260,9 @@ More examples and documentation available [here](http://openocd.org/doc/html/Fla
 5 - Debugging
 -------------
 
-VS Code - Cortex Debug plugin settings
+### VS Code - Cortex Debug plugin settings
 
+#### F10x
 ```
 {
     "version": "0.2.0",
@@ -269,22 +270,21 @@ VS Code - Cortex Debug plugin settings
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceRoot}",
-            "executable": "./build/*.elf",
+            "executable": "./build/*.elf",  // <-- modify this value to your project elf file (ex. blink.elf).
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
             "configFiles": [
-                "interface/stlink-v2.cfg",
-                "target/stm32f1x.cfg",
+                "interface/stlink-v2.cfg",  // <-- modify this value according to your "st-link" version
+                "target/stm32f1x.cfg",      // <-- modify this value according to your "mcu"
             ],
             "swoConfig": {
                 "enabled": true,
+                "cpuFrequency": 8000000,    // <-- modify this value according to your "mcu" clock
                 "swoFrequency": 2000000,
-                "cpuFrequency": 8000000,
                 "decoders": [
                     {
                         "port": 0,
-                        "label": "port0",
                         "showOnStartup": true,
                         "type": "console",
                     }
@@ -294,6 +294,85 @@ VS Code - Cortex Debug plugin settings
     ]
 }
 ```
+
+#### F303RE
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/target.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "STM32F303RE",
+            "configFiles": [
+                "board/st_nucleo_f3.cfg",
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 72000000,
+                "swoFrequency": 2000000,
+                "decoders": [
+                    {
+                        "port": 0,
+                        "showOnStartup": true,
+                        "type": "console",
+                    }
+                ],
+            },
+        }
+    ]
+}
+```
+
+
+See https://github.com/Marus/cortex-debug/blob/master/package.json for possible field configuration
+
+### Project Preparation
+
+```c
+/* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include <string.h>
+/* USER CODE END Includes */
+
+// printf("ping toggled: state = %d\n", HAL_GPIO_ReadPin(LD2_GPIO_Port, LD2_Pin));
+
+/* USER CODE BEGIN 4 */
+int __io_putchar(int ch)
+{
+  ITM_SendChar(ch);
+  return(ch);
+}
+
+int _write(int file, char *ptr, int len)
+{
+  int DataIdx;
+  for (DataIdx = 0; DataIdx < len; DataIdx++)
+  {
+    ITM_SendChar(*ptr++);
+  }
+  return len;
+}
+/* USER CODE END 4 */
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 [STM32CubeMX]:http://www.st.com/en/development-tools/stm32cubemx.html
